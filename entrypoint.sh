@@ -21,7 +21,9 @@ if [ -z "$auth_user" ] || [ -z "$auth_pass" ] || [ "$auth_user" = "$BEEFTV_AUTH"
 fi
 auth_hash="$(openssl passwd -apr1 "$auth_pass")"
 printf '%s:%s\n' "$auth_user" "$auth_hash" > /etc/nginx/.htpasswd
-chmod 600 /etc/nginx/.htpasswd
+# nginx worker 以 nginx 用户运行（非 root），htpasswd 必须对其可读；
+# apr1 哈希本身不可逆，644 是常规做法。
+chmod 644 /etc/nginx/.htpasswd
 unset auth_pass BEEFTV_AUTH
 
 # Backend first (sqlite auto-migrates into /data on boot).
